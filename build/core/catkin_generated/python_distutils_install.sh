@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ -n "$DESTDIR" ] ; then
+    case $DESTDIR in
+        /*) # ok
+            ;;
+        *)
+            /bin/echo "DESTDIR argument must be absolute... "
+            /bin/echo "otherwise python's distutils will bork things."
+            exit 1
+    esac
+fi
+
+echo_and_run() { echo "+ $@" ; "$@" ; }
+
+echo_and_run cd "/home/bluerov23/v3Bluerov/src/core"
+
+# ensure that Python install destination exists
+echo_and_run mkdir -p "$DESTDIR/home/bluerov23/v3Bluerov/install/lib/python3/dist-packages"
+
+# Note that PYTHONPATH is pulled from the environment to support installing
+# into one location when some dependencies were installed in another
+# location, #123.
+echo_and_run /usr/bin/env \
+    PYTHONPATH="/home/bluerov23/v3Bluerov/install/lib/python3/dist-packages:/home/bluerov23/v3Bluerov/build/lib/python3/dist-packages:$PYTHONPATH" \
+    CATKIN_BINARY_DIR="/home/bluerov23/v3Bluerov/build" \
+    "/usr/bin/python3" \
+    "/home/bluerov23/v3Bluerov/src/core/setup.py" \
+     \
+    build --build-base "/home/bluerov23/v3Bluerov/build/core" \
+    install \
+    --root="${DESTDIR-/}" \
+    --install-layout=deb --prefix="/home/bluerov23/v3Bluerov/install" --install-scripts="/home/bluerov23/v3Bluerov/install/bin"
